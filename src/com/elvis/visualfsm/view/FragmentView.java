@@ -1,4 +1,4 @@
-package com.elvis.visualfcm.view;
+package com.elvis.visualfsm.view;
 
 import javax.swing.*;
 

@@ -1,7 +1,7 @@
-package com.elvis.visualfcm.controller;
+package com.elvis.visualfsm.controller;
 
-import com.elvis.visualfcm.view.FCMDesignerForm;
-import com.elvis.visualfcm.view.FragmentView;
+import com.elvis.visualfsm.view.FSMDesignerForm;
+import com.elvis.visualfsm.view.FragmentView;
 import com.intellij.openapi.project.Project;
 
 import javax.swing.*;
@@ -14,11 +14,11 @@ import java.awt.event.ActionEvent;
  * Time: 13:11
  * To change this template use File | Settings | File Templates.
  */
-public class FCMDesignerController {
+public class FSMDesignerController {
     private Project project;
-    private FCMDesignerForm view;
+    private FSMDesignerForm view;
 
-    public FCMDesignerController(Project project, FCMDesignerForm view) {
+    public FSMDesignerController(Project project, FSMDesignerForm view) {
         this.project = project;
         this.view = view;
         init();

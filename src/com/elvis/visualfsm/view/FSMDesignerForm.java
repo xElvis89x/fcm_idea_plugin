@@ -1,4 +1,4 @@
-package com.elvis.visualfcm.view;
+package com.elvis.visualfsm.view;
 
 import javax.swing.*;
 
@@ -9,7 +9,7 @@ import javax.swing.*;
  * Time: 22:41
  * To change this template use File | Settings | File Templates.
  */
-public class FCMDesignerForm {
+public class FSMDesignerForm {
     private JPanel contentPane;
     private JButton addFragmentButton;
     private JPanel designerPanel;

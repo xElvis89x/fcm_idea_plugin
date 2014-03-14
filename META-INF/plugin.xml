@@ -1,8 +1,8 @@
 <idea-plugin version="2">
-    <id>com.yourcompany.unique.plugin.id</id>
-    <name>Plugin display name here</name>
+    <id>com.elvis.visualfsm</id>
+    <name>FSM Fragment Designer</name>
     <version>1.0</version>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">Elvis</vendor>
 
     <description><![CDATA[
       Enter short description for your plugin here.<br>
@@ -34,9 +34,9 @@
 
     <actions>
         <!-- Add your actions here -->
-        <action id="test" class="com.elvis.visualfcm.FCMToolsAction" text="FCM Designer">
+        <action id="fsm_designer" class="com.elvis.visualfsm.FSMToolAction" text="FSM Designer">
             <add-to-group group-id="ToolsMenu" anchor="first"/>
-            <keyboard-shortcut keymap="$default" first-keystroke="ctrl alt PAGE_DOWN"/>
+            <keyboard-shortcut keymap="$default" first-keystroke="shift ctrl alt ADD"/>
         </action>
     </actions>
 
