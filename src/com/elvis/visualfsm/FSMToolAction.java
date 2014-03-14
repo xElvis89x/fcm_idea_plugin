@@ -20,14 +20,17 @@ public class FSMToolAction extends AnAction {
     public static final String FCM_DESIGNER = "Designer";
     private static final String FCM = "FCM";
     private FSMDesignerForm view;
+    private ToolWindow toolWindow;
 
     @Override
     public void actionPerformed(AnActionEvent e) {
-        view = new FSMDesignerForm();
-        new FSMDesignerController(e.getProject(), view);
-        ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(e.getProject());
-        ToolWindow toolWindow = toolWindowManager.registerToolWindow(FCM, true, ToolWindowAnchor.LEFT);
-        toolWindow.getContentManager().addContent(new ContentImpl(view.getContentPane(), FCM_DESIGNER, false));
+        if (toolWindow == null) {
+            view = new FSMDesignerForm();
+            new FSMDesignerController(e.getProject(), view);
+            ToolWindowManager toolWindowManager = ToolWindowManager.getInstance(e.getProject());
+            ToolWindow toolWindow = toolWindowManager.registerToolWindow(FCM, true, ToolWindowAnchor.LEFT);
+            toolWindow.getContentManager().addContent(new ContentImpl(view.getContentPane(), FCM_DESIGNER, false));
+        }
         toolWindow.show(null);
     }
 
