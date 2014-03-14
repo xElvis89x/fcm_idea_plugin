@@ -50,6 +50,7 @@ public class FSMDesignerController {
         mxGraph graph = new mxGraph();
         graph.getModel().beginUpdate();
 
+
         Object v1 = graph.insertVertex(graph.getDefaultParent(), null, "Hello", 20, 20, 80, 30);
         Object v2 = graph.insertVertex(graph.getDefaultParent(), null, "World!", 240, 150, 80, 30);
         graph.insertEdge(graph.getDefaultParent(), null, "Edge", v1, v2);
