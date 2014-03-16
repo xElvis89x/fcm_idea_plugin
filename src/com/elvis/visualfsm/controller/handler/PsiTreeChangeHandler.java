@@ -26,6 +26,7 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
     private JGraph graph;
     private PsiClass psiClass;
 
+
     public void setModel(FSMGraphModel model) {
         this.model = model;
     }
@@ -50,28 +51,30 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
 
     @Override
     public void childReplaced(@NotNull PsiTreeChangeEvent psiTreeChangeEvent) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        updateGraph();
     }
 
     @Override
     public void childrenChanged(@NotNull PsiTreeChangeEvent psiTreeChangeEvent) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        updateGraph();
     }
 
     @Override
     public void childMoved(@NotNull PsiTreeChangeEvent psiTreeChangeEvent) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        updateGraph();
     }
 
     @Override
     public void propertyChanged(@NotNull PsiTreeChangeEvent psiTreeChangeEvent) {
-        //To change body of implemented methods use File | Settings | File Templates.
+        updateGraph();
     }
 
     private void updateGraph() {
         for (PsiClassInitializer initializer : psiClass.getInitializers()) {
             parseExpression(initializer.getBody());
         }
+        graph.updateUI();
+        graph.invalidate();
     }
 
     public void updateStructure() {
@@ -96,7 +99,6 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
                 }
             }
         }
-
     }
 
     private List<FragmentClassGraphVertex> fragmentList = new ArrayList<FragmentClassGraphVertex>();
@@ -115,7 +117,7 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
     }
 
     private ActionGraphEdge findEdgeByName(String name, Object source, Object target) {
-        ActionGraphEdge result = new ActionGraphEdge(name);
+        ActionGraphEdge result = new ActionGraphEdge(name, source, target);
         int fromIndex = actionList.indexOf(result);
         if (fromIndex != -1) {
             result = actionList.get(fromIndex);

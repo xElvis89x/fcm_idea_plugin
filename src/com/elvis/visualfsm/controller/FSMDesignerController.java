@@ -3,16 +3,20 @@ package com.elvis.visualfsm.controller;
 import com.elvis.visualfsm.controller.handler.PsiTreeChangeHandler;
 import com.elvis.visualfsm.model.FSMGraphModel;
 import com.elvis.visualfsm.view.FSMDesignerForm;
+import com.fsm.transit.core.AbstractTransitManger;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.impl.PsiElementFactoryImpl;
 import com.intellij.psi.util.ClassUtil;
+import com.intellij.psi.util.PsiTreeUtil;
+import com.intellij.ui.components.JBScrollPane;
 import org.jgraph.JGraph;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.util.Collection;
 
 /**
  * Created with IntelliJ IDEA.
@@ -22,13 +26,14 @@ import java.awt.event.ActionEvent;
  * To change this template use File | Settings | File Templates.
  */
 public class FSMDesignerController {
+    public static final String TRANSITIONS_MAP = "transitionsMap";
     private Project project;
     private FSMDesignerForm view;
 
     private FSMGraphModel model;
     private JGraph graph;
     private PsiManager psiManager;
-    private PsiClass psiClass;
+    //private PsiClass psiClass;
     private PsiTreeChangeHandler psiTreeChangeHandler;
 
     public FSMDesignerController(Project project, FSMDesignerForm view) {
@@ -40,13 +45,18 @@ public class FSMDesignerController {
 
     private void init() {
         initGraph();
-        psiClass = ClassUtil.findPsiClass(psiManager, "com.example.TestAndro.TestTransitManager");
+        //psiClass = ClassUtil.findPsiClass(null, AbstractTransitManger.class.getName();
+        PsiElement psiElement = ClassUtil.findPsiClass(psiManager, AbstractTransitManger.class.getName());
+
+
+
 
         psiTreeChangeHandler = new PsiTreeChangeHandler();
         psiTreeChangeHandler.setGraph(graph);
         psiTreeChangeHandler.setModel(model);
-        psiTreeChangeHandler.setPsiClass(psiClass);
-        psiClass.getManager().addPsiTreeChangeListener(psiTreeChangeHandler);
+//        psiTreeChangeHandler.setPsiClass(psiClass);
+//        psiClass.getManager().addPsiTreeChangeListener(psiTreeChangeHandler);
+
 
         view.getAddFragmentButton().addActionListener(new AbstractAction() {
             @Override
@@ -54,7 +64,7 @@ public class FSMDesignerController {
                 ApplicationManager.getApplication().runWriteAction(new Runnable() {
                     @Override
                     public void run() {
-                        createField(psiClass);
+//                        createField(psiClass);
                     }
                 });
             }
@@ -68,10 +78,11 @@ public class FSMDesignerController {
         });
 
 
+        psiTreeChangeHandler.updateStructure();
     }
 
     private void createField(PsiClass psiClass) {
-        PsiField psiTransitionsMapField = psiClass.findFieldByName("transitionsMap", true);
+        PsiField psiTransitionsMapField = psiClass.findFieldByName(TRANSITIONS_MAP, true);
         if (psiTransitionsMapField != null) {
             PsiClassInitializer psiClassInitializer = null;
             PsiElementFactory psiElementFactory = new PsiElementFactoryImpl(psiManager);
@@ -98,37 +109,6 @@ public class FSMDesignerController {
         graph.setJumpToDefaultPort(true);
 
         view.getDesignerPanel().setLayout(new BoxLayout(view.getDesignerPanel(), BoxLayout.LINE_AXIS));
-        view.getDesignerPanel().add(new JScrollPane(graph));
+        view.getDesignerPanel().add(new JBScrollPane(graph));
     }
-
-
-//    public static DefaultGraphCell createVertex(String name, double x,
-//                                                double y, double w, double h, Color bg, boolean raised) {
-//
-//        // Create vertex with the given name
-//        DefaultGraphCell cell = new DefaultGraphCell(name);
-//
-//        // Set bounds
-//        GraphConstants.setBounds(cell.getAttributes(), new Rectangle2D.Double(x, y, w, h));
-//
-//        // Set fill color
-//        if (bg != null) {
-//            GraphConstants.setGradientColor(cell.getAttributes(), bg);
-//            GraphConstants.setOpaque(cell.getAttributes(), true);
-//        }
-//
-//        // Set raised border
-//        if (raised) {
-//            GraphConstants.setBorder(cell.getAttributes(),
-//                    BorderFactory.createRaisedBevelBorder());
-//        } else // Set black border
-//        {
-//            GraphConstants.setBorderColor(cell.getAttributes(),
-//                    Color.black);
-//        }
-//        // Add a Floating Port
-//        cell.addPort();
-//
-//        return cell;
-//    }
 }

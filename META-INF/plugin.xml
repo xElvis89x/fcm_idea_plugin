@@ -23,6 +23,7 @@
     <!-- uncomment to enable plugin in all products
     <depends>com.intellij.modules.lang</depends>
     -->
+    <depends>com.intellij.modules.java</depends>
 
     <application-components>
         <!-- Add your application components here -->

@@ -5,6 +5,7 @@ import org.jgraph.graph.GraphConstants;
 
 import java.awt.*;
 import java.awt.geom.Rectangle2D;
+import java.util.Random;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,15 +15,14 @@ import java.awt.geom.Rectangle2D;
  * To change this template use File | Settings | File Templates.
  */
 public class FragmentClassGraphVertex extends DefaultGraphCell {
-    private static int shift = 0;
-
     private String name;
+
+    private static Random random = new Random(System.nanoTime());
 
     public FragmentClassGraphVertex(String name) {
         super(name);
         this.name = name;
-        GraphConstants.setBounds(getAttributes(), new Rectangle2D.Double(100 + shift, 100, 40, 40));
-        shift += 50;
+        GraphConstants.setBounds(getAttributes(), new Rectangle2D.Double(random.nextInt(200), random.nextInt(200), 40, 40));
         GraphConstants.setGradientColor(getAttributes(), Color.GREEN);
         GraphConstants.setOpaque(getAttributes(), true);
         GraphConstants.setBorderColor(getAttributes(), Color.black);
