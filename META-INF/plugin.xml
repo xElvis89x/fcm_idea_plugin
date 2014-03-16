@@ -38,6 +38,6 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <toolWindow id="FSM Designer" anchor="left" factoryClass="com.elvis.visualfsm.FSMToolWindowFactory"/>
+        <toolWindow id="FSM" anchor="left" factoryClass="com.elvis.visualfsm.FSMToolWindowFactory"/>
     </extensions>
 </idea-plugin>

@@ -13,6 +13,7 @@ public class FSMDesignerForm {
     private JPanel contentPane;
     private JButton addFragmentButton;
     private JPanel designerPanel;
+    private JButton refreshButton;
 
     public JPanel getContentPane() {
         return contentPane;
@@ -24,5 +25,9 @@ public class FSMDesignerForm {
 
     public JPanel getDesignerPanel() {
         return designerPanel;
+    }
+
+    public JButton getRefreshButton() {
+        return refreshButton;
     }
 }
