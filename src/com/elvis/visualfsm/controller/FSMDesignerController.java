@@ -6,17 +6,21 @@ import com.elvis.visualfsm.view.FSMDesignerForm;
 import com.fsm.transit.core.AbstractTransitManger;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.impl.PsiElementFactoryImpl;
+import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.ClassUtil;
-import com.intellij.psi.util.PsiTreeUtil;
 import com.intellij.ui.components.JBScrollPane;
 import org.jgraph.JGraph;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -43,19 +47,24 @@ public class FSMDesignerController {
         init();
     }
 
+
     private void init() {
         initGraph();
         //psiClass = ClassUtil.findPsiClass(null, AbstractTransitManger.class.getName();
-        PsiElement psiElement = ClassUtil.findPsiClass(psiManager, AbstractTransitManger.class.getName());
+//        ;
 
-
+        List<PsiClass> psiClasses = findTransitClasses();
+        PsiClass currentFile = psiClasses.get(0);
 
 
         psiTreeChangeHandler = new PsiTreeChangeHandler();
         psiTreeChangeHandler.setGraph(graph);
         psiTreeChangeHandler.setModel(model);
-//        psiTreeChangeHandler.setPsiClass(psiClass);
-//        psiClass.getManager().addPsiTreeChangeListener(psiTreeChangeHandler);
+        psiTreeChangeHandler.setPsiClass(currentFile);
+        currentFile.getManager().addPsiTreeChangeListener(psiTreeChangeHandler);
+
+
+        view.getFragmentClassLabel().setText(currentFile.getName());
 
 
         view.getAddFragmentButton().addActionListener(new AbstractAction() {
@@ -64,7 +73,7 @@ public class FSMDesignerController {
                 ApplicationManager.getApplication().runWriteAction(new Runnable() {
                     @Override
                     public void run() {
-//                        createField(psiClass);
+                        createField(psiTreeChangeHandler.getPsiClass());
                     }
                 });
             }
@@ -81,6 +90,28 @@ public class FSMDesignerController {
         psiTreeChangeHandler.updateStructure();
     }
 
+    private List<PsiClass> findTransitClasses() {
+        PsiClass transitPsiClass = ClassUtil.findPsiClass(psiManager, AbstractTransitManger.class.getName());
+        PsiPackage psiPackage = JavaPsiFacade.getInstance(project).findPackage("");
+        List<VirtualFile> vFiles = Arrays.asList(ProjectRootManager.getInstance(project).getContentSourceRoots());
+        return findNeedClasses(GlobalSearchScope.filesScope(project, vFiles), psiPackage, transitPsiClass);
+    }
+
+    private List<PsiClass> findNeedClasses(GlobalSearchScope globalSearchScope, PsiPackage psiPackage, PsiClass psiClass) {
+        List<PsiClass> result = new ArrayList<PsiClass>();
+        PsiPackage[] psiPackages = globalSearchScope != null ? psiPackage.getSubPackages(globalSearchScope) : psiPackage.getSubPackages();
+        for (PsiPackage aPackage : psiPackages) {
+            result.addAll(findNeedClasses(null, aPackage, psiClass));
+            for (PsiClass aClass : aPackage.getClasses()) {
+                if (aClass.getSuperClass() != null && aClass.getSuperClass().equals(psiClass)) {
+                    result.add(aClass);
+                }
+            }
+        }
+        return result;
+    }
+
+
     private void createField(PsiClass psiClass) {
         PsiField psiTransitionsMapField = psiClass.findFieldByName(TRANSITIONS_MAP, true);
         if (psiTransitionsMapField != null) {
@@ -90,7 +121,7 @@ public class FSMDesignerController {
                 psiClassInitializer = psiClass.getInitializers()[psiClass.getInitializers().length - 1];
             } else {
                 psiClassInitializer = psiElementFactory.createClassInitializer();
-                psiClass.getModifierList().add(psiClassInitializer);
+                psiClass.getModifierList().addBefore(psiClassInitializer, psiClass.getRBrace());
             }
 
             String statment = psiTransitionsMapField.getName() + ".put(new TransitData<FragmentAction>(F1.class, FragmentAction.B1), new TransitResultData<FragmentAction>(F2.class));";
