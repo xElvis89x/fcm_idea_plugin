@@ -1,5 +1,6 @@
 package com.elvis.visualfsm.controller;
 
+import android.support.v4.app.Fragment;
 import com.elvis.visualfsm.controller.handler.PsiTreeChangeHandler;
 import com.elvis.visualfsm.model.FSMGraphModel;
 import com.elvis.visualfsm.view.FSMDesignerForm;
@@ -7,6 +8,7 @@ import com.fsm.transit.core.AbstractTransitManger;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
+import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleManager;
@@ -73,7 +75,16 @@ public class FSMDesignerController {
                 ApplicationManager.getApplication().runWriteAction(new Runnable() {
                     @Override
                     public void run() {
-                        createField(psiTreeChangeHandler.getPsiClass());
+                        List<PsiClass> psiClassList = findFragmentClasses();
+//                        Project project = event.getData(PlatformDataKeys.PROJECT);
+//                        String txt= Messages.showInputDialog(project, "What is your name?", "Input your name", Messages.getQuestionIcon());
+                        String[] strings = new String[psiClassList.size()];
+                        int i = 0;
+                        for (PsiClass psiClass : psiClassList) {
+                            strings[i++] = psiClass.getName();
+                        }
+                        String res = Messages.showEditableChooseDialog("choose", "Fragment", null, strings, strings[0], null);
+                        createField(psiTreeChangeHandler.getPsiClass(), res, res);
                     }
                 });
             }
@@ -97,6 +108,13 @@ public class FSMDesignerController {
         return findNeedClasses(GlobalSearchScope.filesScope(project, vFiles), psiPackage, transitPsiClass);
     }
 
+    private List<PsiClass> findFragmentClasses() {
+        PsiClass transitPsiClass = ClassUtil.findPsiClass(psiManager, Fragment.class.getName());
+        PsiPackage psiPackage = JavaPsiFacade.getInstance(project).findPackage("");
+        List<VirtualFile> vFiles = Arrays.asList(ProjectRootManager.getInstance(project).getContentSourceRoots());
+        return findNeedClasses(GlobalSearchScope.filesScope(project, vFiles), psiPackage, transitPsiClass);
+    }
+
     private List<PsiClass> findNeedClasses(GlobalSearchScope globalSearchScope, PsiPackage psiPackage, PsiClass psiClass) {
         List<PsiClass> result = new ArrayList<PsiClass>();
         PsiPackage[] psiPackages = globalSearchScope != null ? psiPackage.getSubPackages(globalSearchScope) : psiPackage.getSubPackages();
@@ -112,7 +130,7 @@ public class FSMDesignerController {
     }
 
 
-    private void createField(PsiClass psiClass) {
+    private void createField(PsiClass psiClass, String from, String to) {
         PsiField psiTransitionsMapField = psiClass.findFieldByName(TRANSITIONS_MAP, true);
         if (psiTransitionsMapField != null) {
             PsiClassInitializer psiClassInitializer = null;
@@ -124,7 +142,11 @@ public class FSMDesignerController {
                 psiClass.getModifierList().addBefore(psiClassInitializer, psiClass.getRBrace());
             }
 
-            String statment = psiTransitionsMapField.getName() + ".put(new TransitData<FragmentAction>(F1.class, FragmentAction.B1), new TransitResultData<FragmentAction>(F2.class));";
+            String statment = psiTransitionsMapField.getName() + ".put(new TransitData<FragmentAction>("
+                    + from
+                    + ".class, FragmentAction.B1), new TransitResultData<FragmentAction>("
+                    + to
+                    + ".class));";
             PsiStatement psiStatement = psiElementFactory.createStatementFromText(statment, psiClassInitializer.getBody().getContext());
             psiClassInitializer.getModifierList().addBefore(psiStatement, psiClassInitializer.getBody().getRBrace());
 
