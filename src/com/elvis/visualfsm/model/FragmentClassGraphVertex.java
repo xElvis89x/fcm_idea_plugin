@@ -1,5 +1,6 @@
 package com.elvis.visualfsm.model;
 
+import com.intellij.ui.JBColor;
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
 
@@ -23,11 +24,12 @@ public class FragmentClassGraphVertex extends DefaultGraphCell {
         super(name);
         this.name = name;
         GraphConstants.setBounds(getAttributes(), new Rectangle2D.Double(random.nextInt(200), random.nextInt(200), 40, 40));
-        GraphConstants.setGradientColor(getAttributes(), Color.GREEN);
+        GraphConstants.setGradientColor(getAttributes(), JBColor.GREEN);
         GraphConstants.setOpaque(getAttributes(), true);
-        GraphConstants.setBorderColor(getAttributes(), Color.black);
-        addPort();
+        GraphConstants.setBorderColor(getAttributes(), JBColor.BLACK);
     }
+
+
 
     @Override
     public boolean equals(Object o) {

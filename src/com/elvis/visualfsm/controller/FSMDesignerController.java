@@ -1,6 +1,6 @@
 package com.elvis.visualfsm.controller;
 
-import android.support.v4.app.Fragment;
+import com.elvis.visualfsm.controller.graph.StructureGraph;
 import com.elvis.visualfsm.controller.handler.PsiTreeChangeHandler;
 import com.elvis.visualfsm.model.FSMGraphModel;
 import com.elvis.visualfsm.view.FSMDesignerForm;
@@ -52,8 +52,6 @@ public class FSMDesignerController {
 
     private void init() {
         initGraph();
-        //psiClass = ClassUtil.findPsiClass(null, AbstractTransitManger.class.getName();
-//        ;
 
         List<PsiClass> psiClasses = findTransitClasses();
         PsiClass currentFile = psiClasses.get(0);
@@ -76,15 +74,19 @@ public class FSMDesignerController {
                     @Override
                     public void run() {
                         List<PsiClass> psiClassList = findFragmentClasses();
-//                        Project project = event.getData(PlatformDataKeys.PROJECT);
-//                        String txt= Messages.showInputDialog(project, "What is your name?", "Input your name", Messages.getQuestionIcon());
                         String[] strings = new String[psiClassList.size()];
                         int i = 0;
                         for (PsiClass psiClass : psiClassList) {
                             strings[i++] = psiClass.getName();
                         }
-                        String res = Messages.showEditableChooseDialog("choose", "Fragment", null, strings, strings[0], null);
-                        createField(psiTreeChangeHandler.getPsiClass(), res, res);
+                        if (strings.length > 0) {
+                            String res = Messages.showEditableChooseDialog("choose", "Fragment", null, strings, strings[0], null);
+                            if (res != null) {
+                                createField(psiTreeChangeHandler.getPsiClass(), res, res);
+                            }
+                        } else {
+                            Messages.showMessageDialog(project, "now fragment files", "Warning", null);
+                        }
                     }
                 });
             }
@@ -96,8 +98,6 @@ public class FSMDesignerController {
                 psiTreeChangeHandler.updateStructure();
             }
         });
-
-
         psiTreeChangeHandler.updateStructure();
     }
 
@@ -109,7 +109,7 @@ public class FSMDesignerController {
     }
 
     private List<PsiClass> findFragmentClasses() {
-        PsiClass transitPsiClass = ClassUtil.findPsiClass(psiManager, Fragment.class.getName());
+        PsiClass transitPsiClass = ClassUtil.findPsiClass(psiManager, "android.support.v4.app.Fragment");
         PsiPackage psiPackage = JavaPsiFacade.getInstance(project).findPackage("");
         List<VirtualFile> vFiles = Arrays.asList(ProjectRootManager.getInstance(project).getContentSourceRoots());
         return findNeedClasses(GlobalSearchScope.filesScope(project, vFiles), psiPackage, transitPsiClass);
@@ -156,8 +156,10 @@ public class FSMDesignerController {
 
     void initGraph() {
         model = new FSMGraphModel();
-        graph = new JGraph(model);
-//        graph.setCloneable(true);
+        graph = new StructureGraph(model);
+        graph.setAntiAliased(true);
+        graph.setConnectable(true);
+        graph.setCloneable(true);
         graph.setInvokesStopCellEditing(true);
         graph.setJumpToDefaultPort(true);
 

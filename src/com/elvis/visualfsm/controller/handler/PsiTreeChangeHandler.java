@@ -73,6 +73,7 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
     }
 
     private void updateGraph() {
+        graph.getGraphLayoutCache().remove(graph.getGraphLayoutCache().getCells(true, true, true, true));
         if (psiClass != null) {
             for (PsiClassInitializer initializer : psiClass.getInitializers()) {
                 parseExpression(initializer.getBody());
@@ -83,7 +84,6 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
     }
 
     public void updateStructure() {
-        graph.getGraphLayoutCache().remove(graph.getGraphLayoutCache().getCells(true, true, true, true));
         fragmentList.clear();
         actionList.clear();
         updateGraph();
@@ -118,6 +118,7 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
         } else {
             fragmentList.add(result);
         }
+        result.addPort();
         return result;
     }
 
