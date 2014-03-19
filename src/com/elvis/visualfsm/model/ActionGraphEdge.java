@@ -26,6 +26,7 @@ public class ActionGraphEdge extends DefaultEdge {
         GraphConstants.setEndFill(getAttributes(), true);
     }
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

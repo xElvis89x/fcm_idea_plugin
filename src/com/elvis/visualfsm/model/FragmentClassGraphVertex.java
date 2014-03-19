@@ -4,7 +4,6 @@ import com.intellij.ui.JBColor;
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
 
-import java.awt.*;
 import java.awt.geom.Rectangle2D;
 import java.util.Random;
 
@@ -27,8 +26,8 @@ public class FragmentClassGraphVertex extends DefaultGraphCell {
         GraphConstants.setGradientColor(getAttributes(), JBColor.GREEN);
         GraphConstants.setOpaque(getAttributes(), true);
         GraphConstants.setBorderColor(getAttributes(), JBColor.BLACK);
+        GraphConstants.setSizeable(getAttributes(), false);
     }
-
 
 
     @Override

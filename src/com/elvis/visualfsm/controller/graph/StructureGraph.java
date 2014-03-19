@@ -1,6 +1,5 @@
 package com.elvis.visualfsm.controller.graph;
 
-import com.elvis.visualfsm.model.FragmentClassGraphVertex;
 import org.jgraph.JGraph;
 import org.jgraph.graph.GraphModel;
 
@@ -21,9 +20,6 @@ public class StructureGraph extends JGraph {
 
     @Override
     public boolean isCellEditable(Object cell) {
-        if (cell instanceof FragmentClassGraphVertex) {
-            return false;
-        }
-        return super.isCellEditable(cell);    //To change body of overridden methods use File | Settings | File Templates.
+        return false;
     }
 }

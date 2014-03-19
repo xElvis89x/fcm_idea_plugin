@@ -26,6 +26,15 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
     private JGraph graph;
     private PsiClass psiClass;
 
+    public PsiTreeChangeHandler(FSMGraphModel model, JGraph graph, PsiClass psiClass) {
+        this.model = model;
+        this.graph = graph;
+        this.psiClass = psiClass;
+    }
+
+    public PsiTreeChangeHandler() {
+    }
+
     public PsiClass getPsiClass() {
         return psiClass;
     }
@@ -84,7 +93,7 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
     }
 
     public void updateStructure() {
-        fragmentList.clear();
+//        fragmentList.clear();
         actionList.clear();
         updateGraph();
     }
@@ -144,6 +153,9 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
         for (Object cell : graph.getGraphLayoutCache().getCells(true, true, true, true)) {
             cells.remove(cell);
         }
+        model.beginUpdate();
+
+        model.endUpdate();
         graph.getGraphLayoutCache().insert(cells.toArray());
 
     }
