@@ -22,8 +22,12 @@ public class ActionGraphEdge extends DefaultEdge {
         this(name);
         setSource(source);
         setTarget(target);
-        GraphConstants.setLineEnd(getAttributes(), GraphConstants.ARROW_CLASSIC);
+        GraphConstants.setLineEnd(getAttributes(), GraphConstants.ARROW_TECHNICAL);
         GraphConstants.setEndFill(getAttributes(), true);
+        GraphConstants.setConnectable(getAttributes(), true);
+        GraphConstants.setDisconnectable(getAttributes(), true);
+        GraphConstants.setLabelAlongEdge(getAttributes(), true);
+        GraphConstants.setBendable(getAttributes(), true);
     }
 
 

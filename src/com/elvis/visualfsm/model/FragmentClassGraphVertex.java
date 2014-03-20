@@ -27,6 +27,25 @@ public class FragmentClassGraphVertex extends DefaultGraphCell {
         GraphConstants.setOpaque(getAttributes(), true);
         GraphConstants.setBorderColor(getAttributes(), JBColor.BLACK);
         GraphConstants.setSizeable(getAttributes(), false);
+        GraphConstants.setConnectable(getAttributes(), true);
+        GraphConstants.setDisconnectable(getAttributes(), true);
+        GraphConstants.setBendable(getAttributes(), true);
+    }
+
+    public int getWidth() {
+        return (int) GraphConstants.getBounds(getAttributes()).getWidth();
+    }
+
+    public int getHeight() {
+        return (int) GraphConstants.getBounds(getAttributes()).getHeight();
+    }
+
+    public int getX() {
+        return (int) GraphConstants.getBounds(getAttributes()).getX();
+    }
+
+    public int getY() {
+        return (int) GraphConstants.getBounds(getAttributes()).getY();
     }
 
 

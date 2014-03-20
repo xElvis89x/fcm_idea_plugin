@@ -1,5 +1,8 @@
 package com.elvis.visualfsm.controller.graph;
 
+import com.mxgraph.model.mxIGraphModel;
+import com.mxgraph.view.mxGraph;
+import com.mxgraph.view.mxStylesheet;
 import org.jgraph.JGraph;
 import org.jgraph.graph.GraphModel;
 
@@ -18,8 +21,4 @@ public class StructureGraph extends JGraph {
         super(graphModel);
     }
 
-    @Override
-    public boolean isCellEditable(Object cell) {
-        return false;
-    }
 }

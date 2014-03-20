@@ -9,5 +9,5 @@ import org.jgraph.graph.DefaultGraphModel;
  * Time: 23:53
  * To change this template use File | Settings | File Templates.
  */
-public class FSMGraphModel extends DefaultGraphModel {
+public class StructureGraphModel extends DefaultGraphModel {
 }

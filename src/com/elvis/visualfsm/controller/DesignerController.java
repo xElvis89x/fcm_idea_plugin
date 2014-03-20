@@ -3,19 +3,22 @@ package com.elvis.visualfsm.controller;
 import com.elvis.visualfsm.controller.graph.StructureGraph;
 import com.elvis.visualfsm.controller.handler.GraphEditHandler;
 import com.elvis.visualfsm.controller.handler.PsiTreeChangeHandler;
-import com.elvis.visualfsm.model.FSMGraphModel;
+import com.elvis.visualfsm.model.StructureGraphModel;
 import com.elvis.visualfsm.view.FSMDesignerForm;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiClass;
 import com.intellij.ui.components.JBScrollPane;
-import org.jgraph.JGraph;
-import org.jgrapht.ext.JGraphModelAdapter;
+import com.jgraph.layout.JGraphFacade;
+import com.jgraph.layout.JGraphLayout;
+import com.jgraph.layout.organic.JGraphOrganicLayout;
+import com.jgraph.layout.tree.JGraphTreeLayout;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -24,20 +27,20 @@ import java.util.List;
  * Time: 13:11
  * To change this template use File | Settings | File Templates.
  */
-public class FSMDesignerController {
+public class DesignerController {
 
     private Project project;
     private FSMDesignerForm view;
 
-    private FSMGraphModel model;
-    private JGraph graph;
+    private StructureGraphModel model;
+    private StructureGraph graph;
 
     private PsiTreeChangeHandler psiTreeChangeHandler;
     private GraphEditHandler graphEditHandler;
 
     private PsiTransitClassManager psiTransitClassManager;
 
-    public FSMDesignerController(Project project, FSMDesignerForm view) {
+    public DesignerController(Project project, FSMDesignerForm view) {
         this.project = project;
         this.view = view;
 
@@ -94,15 +97,16 @@ public class FSMDesignerController {
         psiTreeChangeHandler.updateStructure();
     }
 
+
     private void initGraph() {
-        model = new FSMGraphModel();
+        model = new StructureGraphModel();
         graph = new StructureGraph(model);
         graph.setAntiAliased(true);
-        graph.setConnectable(true);
         graph.setCloneable(false);
 //        graph.setInvokesStopCellEditing(true);
 //        graph.setJumpToDefaultPort(true);
         graph.setGridVisible(true);
+
         view.getDesignerPanel().setLayout(new BoxLayout(view.getDesignerPanel(), BoxLayout.LINE_AXIS));
         view.getDesignerPanel().add(new JBScrollPane(graph));
 

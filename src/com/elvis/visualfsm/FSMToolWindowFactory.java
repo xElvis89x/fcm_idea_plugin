@@ -1,6 +1,6 @@
 package com.elvis.visualfsm;
 
-import com.elvis.visualfsm.controller.FSMDesignerController;
+import com.elvis.visualfsm.controller.DesignerController;
 import com.elvis.visualfsm.view.FSMDesignerForm;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
@@ -24,7 +24,7 @@ public class FSMToolWindowFactory implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(Project project, ToolWindow toolWindow) {
         view = new FSMDesignerForm();
-        new FSMDesignerController(project, view);
+        new DesignerController(project, view);
         toolWindow.getContentManager().addContent(new ContentImpl(view.getContentPane(), FCM_DESIGNER, false));
     }
 }
