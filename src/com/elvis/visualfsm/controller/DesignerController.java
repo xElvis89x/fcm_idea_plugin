@@ -4,21 +4,20 @@ import com.elvis.visualfsm.controller.graph.StructureGraph;
 import com.elvis.visualfsm.controller.handler.GraphEditHandler;
 import com.elvis.visualfsm.controller.handler.PsiTreeChangeHandler;
 import com.elvis.visualfsm.model.StructureGraphModel;
+import com.elvis.visualfsm.model.TransitClassComboBoxModel;
 import com.elvis.visualfsm.view.FSMDesignerForm;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiClass;
 import com.intellij.ui.components.JBScrollPane;
-import com.jgraph.layout.JGraphFacade;
-import com.jgraph.layout.JGraphLayout;
-import com.jgraph.layout.organic.JGraphOrganicLayout;
-import com.jgraph.layout.tree.JGraphTreeLayout;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.geom.Point2D;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -40,6 +39,8 @@ public class DesignerController {
 
     private PsiTransitClassManager psiTransitClassManager;
 
+    private TransitClassComboBoxModel comboBoxModel = new TransitClassComboBoxModel();
+
     public DesignerController(Project project, FSMDesignerForm view) {
         this.project = project;
         this.view = view;
@@ -51,17 +52,23 @@ public class DesignerController {
     private void init() {
         initGraph();
         psiTransitClassManager = new PsiTransitClassManager(project);
-        psiTransitClassManager.setPsiClass(psiTransitClassManager.findTransitClasses().get(0));
-
-        psiTreeChangeHandler = new PsiTreeChangeHandler(model, graph, psiTransitClassManager.getPsiClass());
-        psiTreeChangeHandler.setGraph(graph);
-        psiTreeChangeHandler.setModel(model);
-        psiTreeChangeHandler.setPsiClass(psiTransitClassManager.getPsiClass());
-        psiTransitClassManager.getPsiClass().getManager().addPsiTreeChangeListener(psiTreeChangeHandler);
 
 
-        view.getFragmentClassLabel().setText(psiTransitClassManager.getPsiClass().getName());
-
+        List<PsiClass> psiClasses = psiTransitClassManager.findTransitClasses();
+        for (PsiClass psiClass : psiClasses) {
+            comboBoxModel.addElement(psiClass);
+        }
+        view.getTransitClassBox().setModel(comboBoxModel);
+        view.getTransitClassBox().addItemListener(new ItemListener() {
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                PsiClass psiClass = (PsiClass) e.getItem();
+                transitClassChanged(psiClass);
+            }
+        });
+        if (psiClasses.size() > 0) {
+            transitClassChanged(psiClasses.get(0));
+        }
 
         view.getAddFragmentButton().addActionListener(new AbstractAction() {
             @Override
@@ -91,12 +98,23 @@ public class DesignerController {
         view.getRefreshButton().addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                psiTreeChangeHandler.updateStructure();
+                if (psiTreeChangeHandler != null) {
+                    psiTreeChangeHandler.updateStructure();
+                }
             }
         });
-        psiTreeChangeHandler.updateStructure();
     }
 
+    private void transitClassChanged(PsiClass psiClass) {
+        psiTransitClassManager.setPsiClass(psiClass);
+        recreatePsiTreeChangeHandler(psiClass);
+    }
+
+    void recreatePsiTreeChangeHandler(PsiClass psiClass) {
+        psiTreeChangeHandler = new PsiTreeChangeHandler(model, graph);
+        psiTreeChangeHandler.setPsiClass(psiClass);
+        psiClass.getManager().addPsiTreeChangeListener(psiTreeChangeHandler);
+    }
 
     private void initGraph() {
         model = new StructureGraphModel();

@@ -14,10 +14,10 @@ public class FSMDesignerForm {
     private JButton addFragmentButton;
     private JPanel designerPanel;
     private JButton refreshButton;
-    private JLabel fagmentClass;
+    private JComboBox transitClassBox;
 
-    public JLabel getFragmentClassLabel() {
-        return fagmentClass;
+    public JComboBox getTransitClassBox() {
+        return transitClassBox;
     }
 
     public JPanel getContentPane() {

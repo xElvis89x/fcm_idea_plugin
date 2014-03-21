@@ -2,16 +2,14 @@
     <id>com.elvis.visualfsm</id>
     <name>FSM Fragment Designer</name>
     <version>1.0</version>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">Elvis</vendor>
+    <vendor email="xElvis89x@gmail.com" url="http://www.elvis.com">Elvis</vendor>
 
     <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <small>most HTML tags may be used</small>
+      Small util for fsm lib
       ]]></description>
 
     <change-notes><![CDATA[
-      Add change notes here.<br>
-      <small>most HTML tags may be used</small>
+      First alpha build
       ]]>
     </change-notes>
 

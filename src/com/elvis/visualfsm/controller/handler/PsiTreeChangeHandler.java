@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jgraph.graph.DefaultGraphCell;
 
 import javax.swing.*;
+import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -34,10 +35,9 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
     private JGraphLayout layout;
     private JGraphFacade facade;
 
-    public PsiTreeChangeHandler(StructureGraphModel model, StructureGraph graph, PsiClass psiClass) {
+    public PsiTreeChangeHandler(StructureGraphModel model, StructureGraph graph) {
         this.model = model;
         this.graph = graph;
-        this.psiClass = psiClass;
     }
 
     public PsiTreeChangeHandler() {
@@ -58,6 +58,7 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
 
     public void setPsiClass(PsiClass psiClass) {
         this.psiClass = psiClass;
+        fireDataChange();
     }
 
     public void addFragment(PsiClass fragmentPsiClass) {
@@ -95,11 +96,11 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
     }
 
     void reformatGraph() {
-        if (facade == null) {
-            facade = new JGraphFacade(graph);
-            facade.setDirected(true);
-            facade.setIgnoresUnconnectedCells(true);
-        }
+//        if (facade == null) {
+        facade = new JGraphFacade(graph);
+        facade.setDirected(true);
+        facade.setIgnoresUnconnectedCells(true);
+//        }
         if (layout == null) {
             JGraphTreeLayout localLayout = new JGraphTreeLayout();
             localLayout.setOrientation(SwingConstants.WEST);
@@ -191,6 +192,11 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
         model.endUpdate();
         graph.getGraphLayoutCache().insert(cells.toArray());
 
+    }
+
+    private void fireDataChange() {
+        updateStructure();
+        fragmentList.clear();
     }
 
 }
