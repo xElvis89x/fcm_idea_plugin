@@ -1,5 +1,6 @@
 package com.elvis.visualfsm.model;
 
+import com.intellij.psi.PsiClass;
 import com.intellij.ui.JBColor;
 import org.jgraph.graph.DefaultGraphCell;
 import org.jgraph.graph.GraphConstants;
@@ -19,17 +20,26 @@ public class FragmentClassGraphVertex extends DefaultGraphCell {
 
     private static Random random = new Random(System.nanoTime());
 
-    public FragmentClassGraphVertex(String name) {
-        super(name);
-        this.name = name;
+    private PsiClass item;
+
+    public FragmentClassGraphVertex(PsiClass psiClass) {
+        super(psiClass.getName());
+        item = psiClass;
+        name = psiClass.getName();
         GraphConstants.setBounds(getAttributes(), new Rectangle2D.Double(random.nextInt(200), random.nextInt(200), 40, 40));
         GraphConstants.setGradientColor(getAttributes(), JBColor.GREEN);
         GraphConstants.setOpaque(getAttributes(), true);
         GraphConstants.setBorderColor(getAttributes(), JBColor.BLACK);
-        GraphConstants.setSizeable(getAttributes(), false);
-        GraphConstants.setConnectable(getAttributes(), true);
-        GraphConstants.setDisconnectable(getAttributes(), true);
-        GraphConstants.setBendable(getAttributes(), true);
+
+//        GraphConstants.setSizeable(getAttributes(), false);
+//        GraphConstants.setConnectable(getAttributes(), true);
+//        GraphConstants.setDisconnectable(getAttributes(), true);
+//        GraphConstants.setBendable(getAttributes(), true);
+//        GraphConstants.setEditable(getAttributes(), false);
+    }
+
+    public PsiClass getItem() {
+        return item;
     }
 
     public int getWidth() {

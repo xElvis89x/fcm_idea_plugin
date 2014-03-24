@@ -7,6 +7,7 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.psi.*;
 import com.intellij.psi.codeStyle.CodeStyleManager;
 import com.intellij.psi.impl.PsiElementFactoryImpl;
+import com.intellij.psi.impl.PsiManagerEx;
 import com.intellij.psi.search.GlobalSearchScope;
 import com.intellij.psi.util.ClassUtil;
 
@@ -26,11 +27,11 @@ public class PsiTransitClassManager {
 
     private PsiClass psiClass;
     private Project project;
-    private PsiManager psiManager;
+    private PsiManagerEx psiManager;
 
     public PsiTransitClassManager(Project project) {
         this.project = project;
-        psiManager = PsiManager.getInstance(project);
+        psiManager = (PsiManagerEx) PsiManager.getInstance(project);
     }
 
     public void setPsiClass(PsiClass psiClass) {
@@ -41,7 +42,7 @@ public class PsiTransitClassManager {
         return psiClass;
     }
 
-    public void createField(PsiClass psiClass, String from, String to) {
+    public void createField(String from, String to, String aciton) {
         PsiField psiTransitionsMapField = psiClass.findFieldByName(TRANSITIONS_MAP, true);
         if (psiTransitionsMapField != null) {
             PsiClassInitializer psiClassInitializer = null;
@@ -53,16 +54,21 @@ public class PsiTransitClassManager {
                 psiClass.getModifierList().addBefore(psiClassInitializer, psiClass.getRBrace());
             }
 
-            PsiType actionType = psiClass.getExtendsList().getReferencedTypes()[0].getParameters()[0];
+            PsiType actionType = getActionType();
             String actionTypeName = actionType.getPresentableText();
             String statment = psiTransitionsMapField.getName() + ".put("
-                    + "new TransitData<" + actionTypeName + ">(" + from + ".class, " + actionTypeName + ".B1), "
+                    + "new TransitData<" + actionTypeName + ">(" + from + ".class, "
+                    + actionTypeName + "." + aciton + "), "
                     + "new TransitResultData<" + actionTypeName + ">(" + to + ".class));";
             PsiStatement psiStatement = psiElementFactory.createStatementFromText(statment, psiClassInitializer.getBody().getContext());
             psiClassInitializer.getModifierList().addBefore(psiStatement, psiClassInitializer.getBody().getRBrace());
 
             CodeStyleManager.getInstance(psiManager).reformat(psiClassInitializer);
         }
+    }
+
+    public PsiType getActionType() {
+        return psiClass.getExtendsList().getReferencedTypes()[0].getParameters()[0];
     }
 
     public List<PsiClass> findTransitClasses() {
@@ -77,6 +83,10 @@ public class PsiTransitClassManager {
         PsiPackage psiPackage = JavaPsiFacade.getInstance(project).findPackage("");
         List<VirtualFile> vFiles = Arrays.asList(ProjectRootManager.getInstance(project).getContentSourceRoots());
         return findNeedClasses(GlobalSearchScope.filesScope(project, vFiles), psiPackage, transitPsiClass);
+    }
+
+    public PsiClass findActionClass(String canonicalClassName) {
+        return ClassUtil.findPsiClass(psiManager, canonicalClassName);
     }
 
     private List<PsiClass> findNeedClasses(GlobalSearchScope globalSearchScope, PsiPackage psiPackage, PsiClass psiClass) {

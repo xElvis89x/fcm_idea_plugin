@@ -6,13 +6,11 @@ import com.elvis.visualfsm.model.FragmentClassGraphVertex;
 import com.elvis.visualfsm.model.StructureGraphModel;
 import com.intellij.psi.*;
 import com.jgraph.layout.JGraphFacade;
-import com.jgraph.layout.JGraphLayout;
 import com.jgraph.layout.tree.JGraphTreeLayout;
 import org.jetbrains.annotations.NotNull;
 import org.jgraph.graph.DefaultGraphCell;
 
 import javax.swing.*;
-import java.awt.geom.Point2D;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +29,6 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
     private StructureGraphModel model;
     private StructureGraph graph;
     private PsiClass psiClass;
-
-    private JGraphLayout layout;
-    private JGraphFacade facade;
 
     public PsiTreeChangeHandler(StructureGraphModel model, StructureGraph graph) {
         this.model = model;
@@ -62,7 +57,10 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
     }
 
     public void addFragment(PsiClass fragmentPsiClass) {
-
+        FragmentClassGraphVertex vertex = findVertexByName(fragmentPsiClass);
+        if (!fragmentList.contains(vertex)) {
+            fragmentList.add(vertex);
+        }
     }
 
     @Override
@@ -96,32 +94,31 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
     }
 
     void reformatGraph() {
-//        if (facade == null) {
-        facade = new JGraphFacade(graph);
+        JGraphFacade facade = new JGraphFacade(graph);
         facade.setDirected(true);
         facade.setIgnoresUnconnectedCells(true);
-//        }
-        if (layout == null) {
-            JGraphTreeLayout localLayout = new JGraphTreeLayout();
-            localLayout.setOrientation(SwingConstants.WEST);
-            localLayout.setLevelDistance(100);
-            localLayout.setNodeDistance(100);
-            layout = localLayout;
-        }
-        layout.run(facade);
+        JGraphTreeLayout localLayout = new JGraphTreeLayout();
+        localLayout.setOrientation(SwingConstants.WEST);
+        localLayout.setLevelDistance(100);
+        localLayout.setNodeDistance(100);
+        localLayout.run(facade);
         Map nested = facade.createNestedMap(true, true);
         graph.getGraphLayoutCache().edit(nested);
-
     }
 
     private void updateGraph() {
         graph.getGraphLayoutCache().remove(graph.getGraphLayoutCache().getCells(true, true, true, true));
         if (psiClass != null) {
-            for (PsiClassInitializer initializer : psiClass.getInitializers()) {
-                parseExpression(initializer.getBody());
+            List<DefaultGraphCell> cells = new ArrayList<DefaultGraphCell>();
+            for (FragmentClassGraphVertex vertex : fragmentList) {
+                vertex.addPort();
+                cells.add(vertex);
             }
+            for (PsiClassInitializer initializer : psiClass.getInitializers()) {
+                parseExpression(initializer.getBody(), cells);
+            }
+            graph.getGraphLayoutCache().insert(cells.toArray());
             graph.updateUI();
-            graph.invalidate();
         }
     }
 
@@ -139,12 +136,14 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
                     ", " +
                     "new TransitResultData<.*?>\\((.*?)\\.class\\)\\);");
 
-    void parseExpression(PsiElement rootPsiElement) {
+    void parseExpression(PsiElement rootPsiElement, List<DefaultGraphCell> cells) {
         if (rootPsiElement != null) {
             for (PsiElement psiElement : rootPsiElement.getChildren()) {
                 Matcher matcher = regexp.matcher(psiElement.getText());
                 if (matcher.matches()) {
-                    createArrow(matcher.group(1), matcher.group(3), matcher.group(2));
+                    cells.add(findEdgeByName(psiElement, matcher.group(2)
+                            , findVertexByName(findClassByName(matcher.group(1))).getChildAt(0)
+                            , findVertexByName(findClassByName(matcher.group(3))).getChildAt(0)));
                 }
             }
         }
@@ -153,9 +152,19 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
     private List<FragmentClassGraphVertex> fragmentList = new ArrayList<FragmentClassGraphVertex>();
     private List<ActionGraphEdge> actionList = new ArrayList<ActionGraphEdge>();
 
+    private PsiClass findClassByName(String name) {
+        PsiClass result = null;
+        for (FragmentClassGraphVertex vertex : fragmentList) {
+            if (vertex.getItem().getName().equals(name)) {
+                result = vertex.getItem();
+                break;
+            }
+        }
+        return result;
+    }
 
-    private FragmentClassGraphVertex findVertexByName(String name) {
-        FragmentClassGraphVertex result = new FragmentClassGraphVertex(name);
+    private FragmentClassGraphVertex findVertexByName(PsiClass psiClass) {
+        FragmentClassGraphVertex result = new FragmentClassGraphVertex(psiClass);
         int fromIndex = fragmentList.indexOf(result);
         if (fromIndex != -1) {
             result = fragmentList.get(fromIndex);
@@ -166,8 +175,8 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
         return result;
     }
 
-    private ActionGraphEdge findEdgeByName(String name, Object source, Object target) {
-        ActionGraphEdge result = new ActionGraphEdge(name, source, target);
+    private ActionGraphEdge findEdgeByName(PsiElement psiElement, String name, Object source, Object target) {
+        ActionGraphEdge result = new ActionGraphEdge(psiElement, name, source, target);
         int fromIndex = actionList.indexOf(result);
         if (fromIndex != -1) {
             result = actionList.get(fromIndex);
@@ -179,18 +188,10 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
 
 
     private void createArrow(String fromFragment, String toFragment, String action) {
-        List<DefaultGraphCell> cells = new ArrayList<DefaultGraphCell>();
-        graph.getModel().beginUpdate();
-        cells.add(findVertexByName(fromFragment));
-        cells.add(findVertexByName(toFragment));
-        cells.add(findEdgeByName(action, cells.get(0).getChildAt(0), cells.get(1).getChildAt(0)));
 
-        for (Object cell : graph.getGraphLayoutCache().getCells(true, true, true, true)) {
-            cells.remove(cell);
-        }
-
-        model.endUpdate();
-        graph.getGraphLayoutCache().insert(cells.toArray());
+//        for (Object cell : graph.getGraphLayoutCache().getCells(true, true, true, true)) {
+//            cells.remove(cell);
+//        }
 
     }
 

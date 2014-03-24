@@ -14,4 +14,5 @@ import javax.swing.*;
 public class TransitClassComboBoxModel extends DefaultComboBoxModel<PsiClass>{
 
 
+
 }
