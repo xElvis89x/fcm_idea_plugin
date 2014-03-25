@@ -2,7 +2,6 @@ package com.elvis.visualfsm.controller.handler;
 
 import com.elvis.visualfsm.model.ActionGraphEdge;
 import com.intellij.psi.PsiElement;
-import com.intellij.psi.impl.SharedPsiElementImplUtil;
 import org.jgraph.event.GraphModelEvent;
 import org.jgraph.event.GraphModelListener;
 import org.jgraph.graph.ConnectionSet;
@@ -36,7 +35,6 @@ public class GraphEditHandler implements GraphModelListener {
 
             DefaultPort defaultPort = (DefaultPort) prevConnection.getPort();
             DefaultGraphCell defaultGraphCell = (DefaultGraphCell) prevDefaultPort.getParent();
-
 
 
         }

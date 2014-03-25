@@ -1,23 +1,18 @@
 package com.elvis.visualfsm.controller;
 
-import com.android.sdklib.IAndroidTarget;
 import com.elvis.visualfsm.controller.graph.StructureGraph;
 import com.elvis.visualfsm.controller.handler.GraphEditHandler;
 import com.elvis.visualfsm.controller.handler.PsiTreeChangeHandler;
-import com.elvis.visualfsm.model.AndroidTarget;
 import com.elvis.visualfsm.model.StructureGraphModel;
 import com.elvis.visualfsm.model.TransitClassComboBoxModel;
 import com.elvis.visualfsm.view.DesignerForm;
 import com.elvis.visualfsm.view.renderer.TransitClassBoxRenderer;
-import com.intellij.openapi.module.Module;
-import com.intellij.openapi.module.ModuleUtil;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
 import com.intellij.psi.PsiType;
 import com.intellij.ui.components.JBScrollPane;
-import org.jetbrains.android.uipreview.RenderUtil;
 import org.jgraph.event.GraphSelectionEvent;
 import org.jgraph.event.GraphSelectionListener;
 
@@ -107,10 +102,6 @@ public class DesignerController {
                 if (psiTreeChangeHandler != null) {
                     psiTreeChangeHandler.updateStructure();
                 }
-
-//                IAndroidTarget iAndroidTarget = new AndroidTarget();
-//                Module module = ModuleUtil.findModuleForPsiElement(psiTreeChangeHandler.getPsiClass());
-//                RenderUtil.renderLayout(module,,null,null,iAndroidTarget,)
             }
         });
     }

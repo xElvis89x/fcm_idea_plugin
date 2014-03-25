@@ -22,10 +22,9 @@ public class FragmentClassGraphVertex extends DefaultGraphCell {
 
     private PsiClass item;
 
-    public FragmentClassGraphVertex(PsiClass psiClass) {
-        super(psiClass.getName());
-        item = psiClass;
-        name = psiClass.getName();
+    public FragmentClassGraphVertex(String name) {
+        super(name);
+        name = name;
         GraphConstants.setBounds(getAttributes(), new Rectangle2D.Double(random.nextInt(200), random.nextInt(200), 40, 40));
         GraphConstants.setGradientColor(getAttributes(), JBColor.GREEN);
         GraphConstants.setOpaque(getAttributes(), true);
@@ -37,6 +36,12 @@ public class FragmentClassGraphVertex extends DefaultGraphCell {
 //        GraphConstants.setBendable(getAttributes(), true);
 //        GraphConstants.setEditable(getAttributes(), false);
     }
+
+    public FragmentClassGraphVertex(PsiClass psiClass) {
+        this(psiClass.getName());
+        item = psiClass;
+    }
+
 
     public PsiClass getItem() {
         return item;
