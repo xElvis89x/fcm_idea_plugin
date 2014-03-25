@@ -1,5 +1,6 @@
 package com.elvis.visualfsm.model;
 
+import com.intellij.psi.PsiElement;
 import org.jgraph.graph.DefaultEdge;
 import org.jgraph.graph.GraphConstants;
 
@@ -12,20 +13,24 @@ import org.jgraph.graph.GraphConstants;
  */
 public class ActionGraphEdge extends DefaultEdge {
     private String name;
+    private PsiElement psiElement;
 
-    public ActionGraphEdge(String name) {
+    public ActionGraphEdge(PsiElement psiElement, String name) {
         super(name);
         this.name = name;
+        this.psiElement = psiElement;
     }
 
-    public ActionGraphEdge(String name, Object source, Object target) {
-        this(name);
+    public PsiElement getPsiElement() {
+        return psiElement;
+    }
+
+    public ActionGraphEdge(PsiElement psiElement, String name, Object source, Object target) {
+        this(psiElement, name);
         setSource(source);
         setTarget(target);
         GraphConstants.setLineEnd(getAttributes(), GraphConstants.ARROW_TECHNICAL);
         GraphConstants.setEndFill(getAttributes(), true);
-        GraphConstants.setConnectable(getAttributes(), true);
-        GraphConstants.setDisconnectable(getAttributes(), true);
         GraphConstants.setLabelAlongEdge(getAttributes(), true);
         GraphConstants.setBendable(getAttributes(), true);
     }
