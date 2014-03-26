@@ -24,8 +24,8 @@ public class FragmentClassGraphVertex extends DefaultGraphCell {
 
     public FragmentClassGraphVertex(String name) {
         super(name);
-        name = name;
-        GraphConstants.setBounds(getAttributes(), new Rectangle2D.Double(random.nextInt(200), random.nextInt(200), 40, 40));
+        this.name = name;
+        GraphConstants.setBounds(getAttributes(), new Rectangle2D.Double(random.nextInt(200), random.nextInt(200), 150, 40));
         GraphConstants.setGradientColor(getAttributes(), JBColor.GREEN);
         GraphConstants.setOpaque(getAttributes(), true);
         GraphConstants.setBorderColor(getAttributes(), JBColor.BLACK);
