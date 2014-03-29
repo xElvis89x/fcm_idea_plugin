@@ -79,10 +79,18 @@ public class PsiTransitClassManager {
     }
 
     public List<PsiClass> findFragmentClasses() {
-        PsiClass transitPsiClass = ClassUtil.findPsiClass(psiManager, "android.support.v4.app.Fragment");
+        List<PsiClass> result = new ArrayList<PsiClass>();
         PsiPackage psiPackage = JavaPsiFacade.getInstance(project).findPackage("");
         List<VirtualFile> vFiles = Arrays.asList(ProjectRootManager.getInstance(project).getContentSourceRoots());
-        return findNeedClasses(GlobalSearchScope.filesScope(project, vFiles), psiPackage, transitPsiClass);
+
+
+        PsiClass transitPsiClassV4 = ClassUtil.findPsiClass(psiManager, "android.support.v4.app.Fragment");
+        result.addAll(findNeedClasses(GlobalSearchScope.filesScope(project, vFiles), psiPackage, transitPsiClassV4));
+
+        PsiClass transitPsiClassV14 = ClassUtil.findPsiClass(psiManager, "android.app.Fragment");
+        result.addAll(findNeedClasses(GlobalSearchScope.filesScope(project, vFiles), psiPackage, transitPsiClassV14));
+
+        return result;
     }
 
     public PsiClass findActionClass(String canonicalClassName) {

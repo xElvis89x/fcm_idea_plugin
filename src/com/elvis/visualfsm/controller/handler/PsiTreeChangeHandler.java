@@ -134,7 +134,7 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
             "transitionsMap.put\\(" +
                     "new TransitData<.*?>\\((.*?)\\.class, .*?\\.(.*?)\\)" +
                     ", " +
-                    "new TransitResultData<.*?>\\((.*?)\\.class\\)\\);");
+                    "new TransitResultData<.*?>\\((.*?)\\.class(,.*?)*\\)\\);");
 
     void parseExpression(PsiElement rootPsiElement, List<DefaultGraphCell> cells) {
         if (rootPsiElement != null) {
@@ -142,8 +142,8 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
                 Matcher matcher = regexp.matcher(psiElement.getText());
                 if (matcher.matches()) {
                     cells.add(findEdgeByName(psiElement, matcher.group(2)
-                            , findVertexByName(findClassByName(matcher.group(1))).getChildAt(0)
-                            , findVertexByName(findClassByName(matcher.group(3))).getChildAt(0)));
+                            , findVertexByName(matcher.group(1)).getChildAt(0)
+                            , findVertexByName(matcher.group(3)).getChildAt(0)));
                 }
             }
         }
@@ -155,7 +155,7 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
     private PsiClass findClassByName(String name) {
         PsiClass result = null;
         for (FragmentClassGraphVertex vertex : fragmentList) {
-            if (vertex.getItem().getName().equals(name)) {
+            if (vertex.getItem() != null && vertex.getItem().getName().equals(name)) {
                 result = vertex.getItem();
                 break;
             }
@@ -163,8 +163,16 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
         return result;
     }
 
-    private FragmentClassGraphVertex findVertexByName(PsiClass psiClass) {
-        FragmentClassGraphVertex result = new FragmentClassGraphVertex(psiClass);
+    private FragmentClassGraphVertex findVertexByName(PsiClass aClass) {
+        return initFragmentVertex(new FragmentClassGraphVertex(aClass));
+    }
+
+    private FragmentClassGraphVertex findVertexByName(String name) {
+        PsiClass psiClass1 = findClassByName(name);
+        return initFragmentVertex(psiClass1 != null ? new FragmentClassGraphVertex(psiClass1) : new FragmentClassGraphVertex(name));
+    }
+
+    FragmentClassGraphVertex initFragmentVertex(FragmentClassGraphVertex result) {
         int fromIndex = fragmentList.indexOf(result);
         if (fromIndex != -1) {
             result = fragmentList.get(fromIndex);
@@ -186,18 +194,8 @@ public class PsiTreeChangeHandler extends PsiTreeChangeAdapter {
         return result;
     }
 
-
-    private void createArrow(String fromFragment, String toFragment, String action) {
-
-//        for (Object cell : graph.getGraphLayoutCache().getCells(true, true, true, true)) {
-//            cells.remove(cell);
-//        }
-
-    }
-
     private void fireDataChange() {
         updateStructure();
         fragmentList.clear();
     }
-
 }
