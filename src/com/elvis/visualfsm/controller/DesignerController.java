@@ -3,14 +3,18 @@ package com.elvis.visualfsm.controller;
 import com.elvis.visualfsm.controller.graph.StructureGraph;
 import com.elvis.visualfsm.controller.handler.GraphEditHandler;
 import com.elvis.visualfsm.controller.handler.PsiTreeChangeHandler;
+import com.elvis.visualfsm.model.ActionGraphEdge;
 import com.elvis.visualfsm.model.StructureGraphModel;
 import com.elvis.visualfsm.model.TransitClassComboBoxModel;
 import com.elvis.visualfsm.view.DesignerForm;
+import com.elvis.visualfsm.view.SelectActionDialog;
 import com.elvis.visualfsm.view.renderer.TransitClassBoxRenderer;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.psi.PsiClass;
 import com.intellij.psi.PsiField;
+import com.intellij.psi.PsiStatement;
 import com.intellij.psi.PsiType;
 import com.intellij.ui.components.JBScrollPane;
 import org.jgraph.event.GraphSelectionEvent;
@@ -18,9 +22,7 @@ import org.jgraph.event.GraphSelectionListener;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -75,7 +77,7 @@ public class DesignerController {
         view.getAddEdgeButton().addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                Object[] cells = graph.getSelectionCells();
+                final Object[] cells = graph.getSelectionCells();
                 if (cells.length > 1) {
                     PsiType psiType = psiTransitClassManager.getActionType();
                     PsiClass psiClass = psiTransitClassManager.findActionClass(psiType.getCanonicalText());
@@ -87,9 +89,16 @@ public class DesignerController {
                         }
                     }
                     if (fields.size() > 0) {
-                        String res = Messages.showEditableChooseDialog("Choose", "Action", null, fields.toArray(new String[fields.size()]), fields.get(0), null);
+                        SelectActionDialog selectActionDialog = new SelectActionDialog(fields, fields.get(0));
+                        selectActionDialog.setVisible(true);
+                        final String res = selectActionDialog.getAction();
                         if (res != null) {
-                            psiTransitClassManager.createField(cells[0].toString(), cells[1].toString(), res);
+                            ApplicationManager.getApplication().runWriteAction(new Runnable() {
+                                @Override
+                                public void run() {
+                                    psiTransitClassManager.addTransitionBetween(cells[0].toString(), cells[1].toString(), res);
+                                }
+                            });
                         }
                     }
                 }
@@ -101,6 +110,51 @@ public class DesignerController {
             public void actionPerformed(ActionEvent e) {
                 if (psiTreeChangeHandler != null) {
                     psiTreeChangeHandler.updateStructure();
+                }
+            }
+        });
+
+        model.addGraphModelListener(graphEditHandler = new GraphEditHandler(psiTransitClassManager));
+        graph.addGraphSelectionListener(new GraphSelectionListener() {
+            @Override
+            public void valueChanged(GraphSelectionEvent graphSelectionEvent) {
+                view.getAddEdgeButton().setEnabled(graph.getSelectionCells().length > 1);
+            }
+        });
+        graph.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if (e.getClickCount() == 2) {
+                    Object selection = graph.getSelectionCell();
+                    if (selection instanceof ActionGraphEdge) {
+                        final ActionGraphEdge edge = (ActionGraphEdge) selection;
+                        PsiType psiType = psiTransitClassManager.getActionType();
+                        PsiClass psiClass = psiTransitClassManager.findActionClass(psiType.getCanonicalText());
+                        PsiField[] psiField = psiClass.getAllFields();
+                        List<String> fields = new ArrayList<String>();
+                        for (PsiField field : psiField) {
+                            if (field.getType().equals(psiType)) {
+                                fields.add(field.getName());
+                            }
+                        }
+
+                        if (fields.size() > 0) {
+
+                            final String res = Messages.showEditableChooseDialog("Choose", "Action", null, fields.toArray(new String[fields.size()]), edge.getUserObject().toString(), null);
+                            if (res != null) {
+                                ApplicationManager.getApplication().runWriteAction(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        PsiStatement psiStatement = psiTransitClassManager.createTransition(
+                                                edge.getSourceVertex().getUserObject().toString()
+                                                , edge.getSourceVertex().getUserObject().toString()
+                                                , res);
+
+                                    }
+                                });
+                            }
+                        }
+                    }
                 }
             }
         });
@@ -142,14 +196,5 @@ public class DesignerController {
 
         view.getDesignerPanel().setLayout(new BoxLayout(view.getDesignerPanel(), BoxLayout.LINE_AXIS));
         view.getDesignerPanel().add(new JBScrollPane(graph));
-
-        graph.addGraphSelectionListener(new GraphSelectionListener() {
-            @Override
-            public void valueChanged(GraphSelectionEvent graphSelectionEvent) {
-                view.getAddEdgeButton().setEnabled(graph.getSelectionCells().length > 1);
-            }
-        });
-
-        model.addGraphModelListener(graphEditHandler = new GraphEditHandler());
     }
 }
