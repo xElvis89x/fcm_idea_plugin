@@ -147,8 +147,9 @@ public class DesignerController {
                                     public void run() {
                                         PsiStatement psiStatement = psiTransitClassManager.createTransition(
                                                 edge.getSourceVertex().getUserObject().toString()
-                                                , edge.getSourceVertex().getUserObject().toString()
+                                                , edge.getTargetVertex().getUserObject().toString()
                                                 , res);
+                                        edge.getPsiElement().replace(psiStatement);
 
                                     }
                                 });
