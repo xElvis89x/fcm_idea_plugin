@@ -2,6 +2,7 @@ package com.elvis.visualfsm.model;
 
 import com.intellij.psi.PsiElement;
 import org.jgraph.graph.DefaultEdge;
+import org.jgraph.graph.DefaultPort;
 import org.jgraph.graph.GraphConstants;
 
 /**
@@ -23,6 +24,16 @@ public class ActionGraphEdge extends DefaultEdge {
 
     public PsiElement getPsiElement() {
         return psiElement;
+    }
+
+    public FragmentClassGraphVertex getSourceVertex() {
+        DefaultPort defaultPort = (DefaultPort) getSource();
+        return (FragmentClassGraphVertex) defaultPort.getParent();
+    }
+
+    public FragmentClassGraphVertex getTargetVertex() {
+        DefaultPort defaultPort = (DefaultPort) getTarget();
+        return (FragmentClassGraphVertex) defaultPort.getParent();
     }
 
     public ActionGraphEdge(PsiElement psiElement, String name, Object source, Object target) {

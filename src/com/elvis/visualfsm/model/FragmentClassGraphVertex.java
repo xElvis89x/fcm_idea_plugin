@@ -25,7 +25,7 @@ public class FragmentClassGraphVertex extends DefaultGraphCell {
     public FragmentClassGraphVertex(String name) {
         super(name);
         this.name = name;
-        GraphConstants.setBounds(getAttributes(), new Rectangle2D.Double(random.nextInt(200), random.nextInt(200), 150, 40));
+        GraphConstants.setBounds(getAttributes(), new Rectangle2D.Double(random.nextInt(200), random.nextInt(200), 100, 40));
         GraphConstants.setGradientColor(getAttributes(), JBColor.GREEN);
         GraphConstants.setOpaque(getAttributes(), true);
         GraphConstants.setBorderColor(getAttributes(), JBColor.BLACK);
@@ -37,6 +37,7 @@ public class FragmentClassGraphVertex extends DefaultGraphCell {
 //        GraphConstants.setEditable(getAttributes(), false);
     }
 
+
     public FragmentClassGraphVertex(PsiClass psiClass) {
         this(psiClass.getName());
         item = psiClass;
@@ -46,23 +47,6 @@ public class FragmentClassGraphVertex extends DefaultGraphCell {
     public PsiClass getItem() {
         return item;
     }
-
-    public int getWidth() {
-        return (int) GraphConstants.getBounds(getAttributes()).getWidth();
-    }
-
-    public int getHeight() {
-        return (int) GraphConstants.getBounds(getAttributes()).getHeight();
-    }
-
-    public int getX() {
-        return (int) GraphConstants.getBounds(getAttributes()).getX();
-    }
-
-    public int getY() {
-        return (int) GraphConstants.getBounds(getAttributes()).getY();
-    }
-
 
     @Override
     public boolean equals(Object o) {

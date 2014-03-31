@@ -1,6 +1,5 @@
 package com.elvis.visualfsm.controller;
 
-import com.fsm.transit.core.AbstractTransitManger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.roots.ProjectRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
@@ -24,6 +23,9 @@ import java.util.List;
  */
 public class PsiTransitClassManager {
     public static final String TRANSITIONS_MAP = "transitionsMap";
+    public static final String ANDROID_SUPPORT_V4_APP_FRAGMENT = "android.support.v4.app.Fragment";
+    public static final String ANDROID_APP_FRAGMENT = "android.app.Fragment";
+    public static final String COM_FSM_TRANSIT_CORE_ABSTRACT_TRANSIT_MANGER = "com.fsm.transit.core.AbstractTransitManger";
 
     private PsiClass psiClass;
     private Project project;
@@ -42,7 +44,7 @@ public class PsiTransitClassManager {
         return psiClass;
     }
 
-    public void createField(String from, String to, String aciton) {
+    public void addTransitionBetween(String from, String to, String aciton) {
         PsiField psiTransitionsMapField = psiClass.findFieldByName(TRANSITIONS_MAP, true);
         if (psiTransitionsMapField != null) {
             PsiClassInitializer psiClassInitializer = null;
@@ -54,17 +56,28 @@ public class PsiTransitClassManager {
                 psiClass.getModifierList().addBefore(psiClassInitializer, psiClass.getRBrace());
             }
 
-            PsiType actionType = getActionType();
-            String actionTypeName = actionType.getPresentableText();
-            String statment = psiTransitionsMapField.getName() + ".put("
-                    + "new TransitData<" + actionTypeName + ">(" + from + ".class, "
-                    + actionTypeName + "." + aciton + "), "
-                    + "new TransitResultData<" + actionTypeName + ">(" + to + ".class));";
-            PsiStatement psiStatement = psiElementFactory.createStatementFromText(statment, psiClassInitializer.getBody().getContext());
+//            PsiType actionType = getActionType();
+//            String actionTypeName = actionType.getPresentableText();
+//            String statment = psiTransitionsMapField.getName() + ".put("
+//                    + "new TransitData<" + actionTypeName + ">(" + from + ".class, "
+//                    + actionTypeName + "." + aciton + "), "
+//                    + "new TransitResultData<" + actionTypeName + ">(" + to + ".class));";
+//            PsiStatement psiStatement = psiElementFactory.createStatementFromText(statment, psiClassInitializer.getBody().getContext());
+            PsiStatement psiStatement = createTransition(from, to, aciton);
             psiClassInitializer.getModifierList().addBefore(psiStatement, psiClassInitializer.getBody().getRBrace());
-
             CodeStyleManager.getInstance(psiManager).reformat(psiClassInitializer);
         }
+    }
+
+    public PsiStatement createTransition(String from, String to, String aciton) {
+        PsiType actionType = getActionType();
+        String actionTypeName = actionType.getPresentableText();
+        String statment = TRANSITIONS_MAP + ".put("
+                + "new TransitData<" + actionTypeName + ">(" + from + ".class, "
+                + actionTypeName + "." + aciton + "), "
+                + "new TransitResultData<" + actionTypeName + ">(" + to + ".class));";
+
+        return PsiElementFactory.SERVICE.getInstance(project).createStatementFromText(statment, null);
     }
 
     public PsiType getActionType() {
@@ -72,7 +85,7 @@ public class PsiTransitClassManager {
     }
 
     public List<PsiClass> findTransitClasses() {
-        PsiClass transitPsiClass = ClassUtil.findPsiClass(psiManager, AbstractTransitManger.class.getName());
+        PsiClass transitPsiClass = ClassUtil.findPsiClass(psiManager, COM_FSM_TRANSIT_CORE_ABSTRACT_TRANSIT_MANGER);
         PsiPackage psiPackage = JavaPsiFacade.getInstance(project).findPackage("");
         List<VirtualFile> vFiles = Arrays.asList(ProjectRootManager.getInstance(project).getContentSourceRoots());
         return findNeedClasses(GlobalSearchScope.filesScope(project, vFiles), psiPackage, transitPsiClass);
@@ -84,10 +97,10 @@ public class PsiTransitClassManager {
         List<VirtualFile> vFiles = Arrays.asList(ProjectRootManager.getInstance(project).getContentSourceRoots());
 
 
-        PsiClass transitPsiClassV4 = ClassUtil.findPsiClass(psiManager, "android.support.v4.app.Fragment");
+        PsiClass transitPsiClassV4 = ClassUtil.findPsiClass(psiManager, ANDROID_SUPPORT_V4_APP_FRAGMENT);
         result.addAll(findNeedClasses(GlobalSearchScope.filesScope(project, vFiles), psiPackage, transitPsiClassV4));
 
-        PsiClass transitPsiClassV14 = ClassUtil.findPsiClass(psiManager, "android.app.Fragment");
+        PsiClass transitPsiClassV14 = ClassUtil.findPsiClass(psiManager, ANDROID_APP_FRAGMENT);
         result.addAll(findNeedClasses(GlobalSearchScope.filesScope(project, vFiles), psiPackage, transitPsiClassV14));
 
         return result;
@@ -103,8 +116,13 @@ public class PsiTransitClassManager {
         for (PsiPackage aPackage : psiPackages) {
             result.addAll(findNeedClasses(null, aPackage, psiClass));
             for (PsiClass aClass : aPackage.getClasses()) {
-                if (aClass.getSuperClass() != null && aClass.getSuperClass().equals(psiClass)) {
-                    result.add(aClass);
+                PsiClass superClass = aClass.getSuperClass();
+                while (superClass != null) {
+                    if (superClass.equals(psiClass)) {
+                        result.add(aClass);
+                        break;
+                    }
+                    superClass = superClass.getSuperClass();
                 }
             }
         }
